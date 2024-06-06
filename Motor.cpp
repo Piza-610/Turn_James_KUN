@@ -2,7 +2,7 @@
 #include <wiringPi.h> // wiringPiSetupGpio() pinMode() pwmSetMode() pwmSetRange() pwmSetClock() pwmWrite() delay()
 
 int main(){
-    int pin = 17;
+    int pin = 19;
 
     printf("Raspberry Pi wiringPi test program\n");
     wiringPiSetupGpio();
