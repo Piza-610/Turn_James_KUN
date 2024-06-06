@@ -5,7 +5,7 @@ int main(){
     int pin = 17;
 
     printf("Raspberry Pi wiringPi test program\n");
-    wiringPiSeetupGpio();
+    wiringPiSetupGpio();
     pinMode(pin, PWM_OUTPUT);
     pwmSetMode(PWM_MODE_MS);
 
