@@ -2,26 +2,22 @@
 #include <opencv2/opencv.hpp>
 #include "Camera.h"
 
-int main()
-{
-    cv::VideoCapture cap(0);    //デバイスのオープン
+int main() {
+  cv::Mat img;
+  // /dev/video0でVideoCaptureを宣言
+  cv::VideoCapture cap(0);
 
-    if(!cap.isOpened())     //カメラデバイスが正常にオープンしたか確認
-        return -1;
+  while (true) {
+    // カメラの画像をimgに代入
+    cap.read(img);
 
-    cv::Mat frame;  //取得したフレーム
-    while (cap.read(frame))
-    {
-        //取得したフレーム画像に対し、クレースケール変換や2値化などの処理を書き込む
+    // imgの表示
+    cv::imshow("VideoCapture", img);
 
-        cv::imshow("win",frame);
-        const int key = cv::waitKey(1);
-        if(key == 'q')
-            break;
-        else if(key == 's')
-            cv::imwrite("img.jpg", frame);
-    }
-    cv::destroyAllWindows();
+    // escで終了
+    unsigned char key = cv::waitKey(2);
+    if (key == '\x1b') break;
+  }
 
-    return 0;
+  return 0;
 }
