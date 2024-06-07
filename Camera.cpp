@@ -1,7 +1,7 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
 
-int main(int argh, char* argv[])
+int main()
 {
     cv::VideoCapture cap(0);    //デバイスのオープン
 
