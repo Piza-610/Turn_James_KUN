@@ -4,8 +4,7 @@
 
 int main() {
     cv::Mat img;
-    cv::VideoCapture cap;
-    cap.open("/dev/video0", cv::CAP_V4L2); 
+    cv::VideoCapture cap(0);
 
     if (!cap.isOpened()) {
         std::cerr << "Error: Could not open camera." << std::endl;
