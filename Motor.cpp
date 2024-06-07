@@ -22,7 +22,7 @@ void Motor_moving(Motor* const p_this, int pin){
 
     pwmWrite(pin,24);  // (pin_num, output_val) 
     delay(2000);        // sleep
-    pwmWrite(pin,115);
+    pwmWrite(pin,116);
     delay(2000);
 
 }
