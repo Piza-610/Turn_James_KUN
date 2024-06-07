@@ -3,21 +3,29 @@
 #include "Camera.h"
 
 int main() {
-  cv::Mat img;
-  // /dev/video0でVideoCaptureを宣言
-  cv::VideoCapture cap(0);
+    cv::Mat img;
+    cv::VideoCapture cap;
+    cap.open("/dev/video0", cv::CAP_V4L2); 
 
-  while (true) {
-    // カメラの画像をimgに代入
-    cap.read(img);
+    if (!cap.isOpened()) {
+        std::cerr << "Error: Could not open camera." << std::endl;
+        return -1;
+    }
 
-    // imgの表示
-    cv::imshow("VideoCapture", img);
+    cap.set(cv::CAP_PROP_FRAME_WIDTH, 640);
+    cap.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
 
-    // escで終了
-    unsigned char key = cv::waitKey(2);
-    if (key == '\x1b') break;
-  }
+    while (true) {
+        // カメラの画像をimgに代入
+        cap.read(img);
 
-  return 0;
+        // imgの表示
+        cv::imshow("VideoCapture", img);
+
+        // escで終了
+        unsigned char key = cv::waitKey(2);
+        if (key == '\x1b') break;
+    }
+
+    return 0;
 }
