@@ -11,7 +11,7 @@ int main(){
 
     int pin = Motor_getPin(&motor1);
 
-    Motor_setting(&motor1 , pin, 192, 2000);
+    Motor_setting(&motor1 , pin, 400, 1024);
 
     Motor_moving(&motor1 , pin);
 

@@ -20,9 +20,9 @@ void Motor_setting(Motor* const p_this, int pin, int clock, int range){
 void Motor_moving(Motor* const p_this, int pin){
     std::cout << "Raspberry Pi wiringPi test program\n" << std::endl;
 
-    pwmWrite(pin,150);  // (pin_num, output_val) 90°
+    pwmWrite(pin,24);  // (pin_num, output_val) 
     delay(2000);        // sleep
-    //pwmWrite(pin, 200); // 180°
-    //delay(1000);
+    pwmWrite(pin,24);
+    delay(2000);
 
 }
