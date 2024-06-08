@@ -8,7 +8,7 @@
 using namespace cv;
 using namespace std;
 
-int main(void) {
+int main() {
     /* 初期設定 */
 	cv::VideoCapture cap(0);    //open the device
 	if (!cap.isOpened()){
