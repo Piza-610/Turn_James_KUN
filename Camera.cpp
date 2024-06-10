@@ -8,12 +8,18 @@
 using namespace cv;
 using namespace std;
 
+typedef struct Face_Position{
+	int x_st = 0, y_st = 0, x_ed = 0,  y_ed = 0;
+}Face_Position;
+
+
 int main() {
+	struct Face_Position Fpos;
+
     /* 初期設定 */
 	cv::VideoCapture cap(0);    //open the device
-	if (!cap.isOpened()){
+	if (!cap.isOpened())
 		return -1;
-	}
 	cv::Mat frame; 	//取得したフレーム
 
     /* 顔認識の土台作り */
@@ -26,11 +32,6 @@ int main() {
     Mat detection_frame;    //指定範囲
     Rect roi;
     int detection_flag = 0; //既に顔検出しているか(0:no, 1,yes)
-
-	int x = 0;//顔座標の左上のx座標
-	int y = 0;//顔座標の左上のy座標
-	int x_end = 0;//顔座標の右下のx座標
-	int y_end = 0;//顔座標の右下のy座標
 
     int basic_flag = 0;//連続で顔を検知しているかフラグ(0:no(fst_load)　1:yes)
 	int x_basic = 0;//基準点のX座標
@@ -54,11 +55,13 @@ int main() {
 		} else {  //直前のフレームで顔が検出された場合
 
 			//検出範囲として、直前のフレームの顔検出の範囲より一回り(上下左右50pixel)大きい範囲とする
-			Rect roi(Point(x - 50, y - 50), Point(x_end + 50, y_end + 50));
+			Rect roi(Point(Fpos.x_st - 50, Fpos.y_st - 50), 
+				Point(Fpos.x_ed + 50, Fpos.y_ed + 50));
 			detection_frame = frame(roi);
 
 			//検出範囲をピンク枠で囲う
-			rectangle(frame, Point(x - 50, y - 50), Point(x_end + 50, y_end + 50), Scalar(200, 0, 255), 3);
+			rectangle(frame, Point(Fpos.x_st - 50, Fpos.y_st - 50), 	
+				Point(Fpos.x_ed + 50, Fpos.y_ed + 50), Scalar(200, 0, 255), 3);
 
 			//連続検索フラグを1(2連続以上の)
 			basic_flag = 1;
@@ -75,34 +78,34 @@ int main() {
 			//顔座標の左上の座標を求める
 			if (basic_flag == 0) {//初検知の場合
 				//初検知の場合は検出された値をそのまま使う
-				x = faces[0].x;
-				y = faces[0].y;
+				Fpos.x_st = faces[0].x;
+				Fpos.y_st = faces[0].y;
 
 			} else if (basic_flag == 1) {//連続検知の場合
 				//連続検知の場合は、検出座標と直前の基準点を使って顔座標を検出する
-				x = (x_basic - 50) + faces[0].x ;
-				y = (y_basic - 50) + faces[0].y ;
+				Fpos.x_st = (x_basic - 50) + faces[0].x ;
+				Fpos.y_st = (y_basic - 50) + faces[0].y ;
 
 			}
 
 			//顔座標の右下の座標を求める
-			x_end = x + faces[0].width;
-			y_end = y + faces[0].height;
+			Fpos.x_ed = Fpos.x_st + faces[0].width;
+			Fpos.y_ed = Fpos.y_st + faces[0].height;
 
 			//基準点を今算出した顔座標に更新する
-			x_basic = x;
-			y_basic = y;
+			x_basic = Fpos.x_st;
+			y_basic = Fpos.y_st;
 
-			rectangle(frame, Point(x, y), Point(x_end, y_end), Scalar(0, 0, 255), 3);
+			rectangle(frame, Point(Fpos.x_st, Fpos.y_st),
+				Point(Fpos.x_end, Fpos.y_end), Scalar(0, 0, 255), 3);
 		}
 
 		//画像を表示．
 		imshow("win", frame);
 
         const int key = cv::waitKey(1);
-		if (key == 'q'){    //qボタンが押されたとき、
-			break;          //ループを抜ける
-		}
+		if (key == 'q')	    
+			break;          
 	}
 	//すべてのウィンドウを閉じる
 	cv::destroyAllWindows();
