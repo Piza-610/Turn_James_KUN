@@ -10,7 +10,7 @@ int main(){
     Uint8 *wavBuffer;
 
     // WAVファイルの読み込み
-    if(SDL_LoadWAV("../Sounds/baby.wav", &wavSpec, &wavBuffer, &wavLength) == NULL) {
+    if(SDL_LoadWAV("https://www.ne.jp/asahi/music/myuu/wave/menuettm.mp3", &wavSpec, &wavBuffer, &wavLength) == NULL) {
         std::cerr << "WAVファイルの読み込みに失敗しました: " << SDL_GetError() << std::endl;
         return 1;
     }
