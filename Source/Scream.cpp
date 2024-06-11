@@ -1,6 +1,5 @@
 #include <iostream>
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_mixer.h>
 #include "Scream.h"
 
 #define WAV_PATH "../Sounds/aaaa.wav"
