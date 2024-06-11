@@ -3,8 +3,8 @@
 #include "Scream.h"
 
 void audio_callback(void* userdata, Uint8* stream, int len) {
-    SDL_AudioSpec* wavSpec = (SDL_AudioSpec*)userdata;
-    Uint8* wavBuffer = wavSpec->userdata;
+    SDL_AudioSpec* wavSpec = reinterpret_cast<SDL_AudioSpec*>(userdata);
+    Uint8* wavBuffer = reinterpret_cast<Uint8*>(wavSpec->userdata);
 
     if (wavSpec->size == 0) {
         return;
