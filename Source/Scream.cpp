@@ -1,44 +1,28 @@
+#include <SDL.h>
 #include <iostream>
-#include <SDL2/SDL.h>
-#include "Scream.h"
 
-#define WAV_PATH "../Sounds/aaaa.wav"
+int main(int argc, char* argv[]) {
+    SDL_Init(SDL_INIT_AUDIO); // SDLの初期化
 
-Mix_Chunk *wave = NULL;
-Mix_Music *music = NULL;
+    SDL_AudioSpec wavSpec;
+    Uint32 wavLength;
+    Uint8 *wavBuffer;
 
+    // WAVファイルの読み込み
+    if(SDL_LoadWAV("aaaa.wav", &wavSpec, &wavBuffer, &wavLength) == NULL) {
+        std::cerr << "WAVファイルの読み込みに失敗しました: " << SDL_GetError() << std::endl;
+        return 1;
+    }
 
-int main(int argc, char* argv[]){
+    // ここで再生処理を行う
 
-        // Initialize SDL.
-        if (SDL_Init(SDL_INIT_AUDIO) < 0)
-                return -1;
-
-        // Initialize SDL_mixer 
-        if( Mix_OpenAudio( 22050, MIX_DEFAULT_FORMAT, 2, 4096 ) == -1 )
-                return -1;
-
-        // 効果音のロード 
-        wave = Mix_LoadWAV(WAV_PATH);
-        if (wave == NULL)
-                return -1;
-
-
-        // 効果音を一度だけ再生
-        if ( Mix_PlayChannel(-1, wave, 0) == -1 )
-                return -1;
-
-        while ( Mix_PlayingMusic() ) ;
-
-        Mix_FreeChunk(wave);
- 
-        // quit SDL_mixer
-        Mix_CloseAudio();
-
-        return 0;
+    SDL_FreeWAV(wavBuffer); // WAVデータの解放
+    SDL_Quit(); // SDLの終了処理
+    return 0;
 }
 
 // g++ -I /usr/include/SDL2 -D_REENTRANT Turn_The_Neck/Sauce/Scream.cpp -o Scream -lSDL2
 // sudo apt-get install libsdl2-dev -y
 // 参考　https://k38.hatenadiary.jp/entry/2018/10/26/005855
+// https://jp-seemore.com/iot/25920/
 
