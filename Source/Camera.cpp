@@ -1,15 +1,21 @@
 #include <opencv2/opencv.hpp>
 
-int main()
-{
-    // image.pngをimgに代入
-    cv::Mat img = cv::imread("../image.jpg");
+int main() {
+  cv::Mat img;
+  // /dev/video0でVideoCaptureを宣言
+  cv::VideoCapture cap(0);
+
+  while (true) {
+    // カメラの画像をimgに代入
+    cap.read(img);
 
     // imgの表示
-    cv::imshow("img", img);
+    cv::imshow("VideoCapture", img);
 
-    // キーが押されるまで待機
-    cv::waitKey(0);
+    // escで終了
+    unsigned char key = cv::waitKey(2);
+    if (key == '\x1b') break;
+  }
 
-    return 0;
+  return 0;
 }
