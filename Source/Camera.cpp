@@ -21,7 +21,6 @@ int main(void) {
 	//輪郭情報を格納場所
 	vector<Rect> faces;
 
-	//顔の検知範囲
 	Mat detection_frame;	//顔の検出範囲
 	Rect roi;
 	int detection_flag = 0;	//直前に顔を検知しているか(0:No, 1:Yes)
@@ -35,7 +34,7 @@ int main(void) {
 	int x_basic = 0;
 	int y_basic = 0;
 
-	int roi_x, roi_y, roi_width, roi_height;
+	int not_found_flag = 1;//連続顔を見つけられなかった(0:No, 1:Yes)
 
 	//無限ループ
 	while (1){
@@ -51,7 +50,17 @@ int main(void) {
 			x_basic = 0;
 			y_basic = 0;
 		}else{
-			//直前の顔検出の範囲より一回り大きい範囲を検出する
+			//検出範囲がキャプチャフレーム内に収まるように変換する
+			if (x - 50 < 1)
+				x = 51;
+			if (y - 50 < 1)
+				y = 51;
+			if (x_end + 50 > frame.cols - 1)
+				x_end = frame.cols - 51;
+			if (y_end + 50 > frame.rows - 1)
+				y_end = frame.rows - 51;
+
+			//検出範囲として、直前のフレームの顔検出の範囲より一回り(上下左右50pixel)大きい範囲とする
 			Rect roi(Point(x - 50, y - 50), Point(x_end + 50, y_end + 50));
 			detection_frame = frame(roi);
 
@@ -63,12 +72,36 @@ int main(void) {
 		
 
 		//格納されたフレームに対してカスケードファイルに基づいて顔を検知
-		cascade.detectMultiScale(detection_frame, faces, 1.2, 5, 0, Size(20, 20));
+		cascade.detectMultiScale(detection_frame, faces, 1.2, 5, 0, Size(20, 20)); 
+
+		//連続顔検出フラグが0のとき顔を斜めにする
+		//(直前に顔を検出していた時だけ斜めの検出を行う)
+		if (not_found_flag == 0) {
+			not_found_flag = 1;
+			if (faces.size() == 0) {
+				//右に15度傾けるアフィン行列を求める
+				Mat trans = getRotationMatrix2D(Point(detection_frame.cols / 2, detection_frame.rows / 2), 15, 1);
+				//求めたアフィン行列を使って、ピンク枠内画像を回転する
+				warpAffine(detection_frame, detection_frame, trans, detection_frame.size());
+				//傾けた画像で顔を検出
+				cascade.detectMultiScale(detection_frame, faces, 1.2, 5, 0, Size(20, 20));
+			}
+			if (faces.size() == 0) {
+				//左に15度傾けるアフィン行列を求める(右に15度傾けていたので-30度右に傾けることで実質左に15度傾く)
+				Mat trans = getRotationMatrix2D(Point(detection_frame.cols / 2, detection_frame.rows / 2), -30, 1);
+				//求めたアフィン行列を使って、ピンク枠内画像を回転する
+				warpAffine(detection_frame, detection_frame, trans, detection_frame.size());
+				//傾けた画像で顔を検出
+				cascade.detectMultiScale(detection_frame, faces, 1.2, 5, 0, Size(20, 20));
+			}
+		}
 
 		//顔を検出した場合
 		if(faces.size() > 0){
 			//顔検出フラグを立てる(1)
 			detection_flag = 1;
+			//連続顔を見つけられなかったフラグを0
+			not_found_flag = 0;
 
 			//左上の顔座標を求める
 			if(basic_flag == 0){	//初期検知の場合
