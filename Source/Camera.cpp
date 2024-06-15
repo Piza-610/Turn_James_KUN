@@ -56,7 +56,16 @@ int main(void) {
             roi_y = max(0, y - 50);
             roi_width = min(frame.cols - roi_x, x_end - x + 100);
             roi_height = min(frame.rows - roi_y, y_end - y + 100);
-            Rect roi(roi_x, roi_y, roi_width, roi_height);
+			Rect roi(roi_x, roi_y, roi_width, roi_height);
+
+            if (roi.x >= 0 && roi.y >= 0 && 
+                roi.x + roi.width <= frame.cols && 
+                roi.y + roi.height <= frame.rows) {
+                detection_frame = frame(roi);
+            } else {
+                detection_frame = frame;
+                detection_flag = 0; // ROIが無効の場合、再度全体を検出
+            }
 
 // 			Rect roi(Point(x - 50, y - 50), Point(x_end + 50, y_end + 50));
 			detection_frame = frame(roi);
