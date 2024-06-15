@@ -1,4 +1,5 @@
 #include <opencv2/opencv.hpp>
+#include <opencv2/highgui.hpp>
 #include <vector>
 
 using namespace cv;
@@ -8,8 +9,7 @@ int main(void) {
 	//カメラデバイスが正常にオープンしたか確認．
 	VideoCapture cap(0);
 	if (!cap.isOpened()){
-		//読み込みに失敗したときの処理
-		return -1;
+		return -1;	//読み込みに失敗したときの処理
 	}
 
 	//取得したフレーム
@@ -22,7 +22,7 @@ int main(void) {
 	vector<Rect> faces;
 
 	//顔の検知範囲
-	Mat detection_frame;
+	Mat detection_frame;	//顔の検出範囲
 	Rect roi;
 	int detection_flag = 0;	//直前に顔を検知しているか(0:No, 1:Yes)
 
@@ -91,10 +91,9 @@ int main(void) {
 
 		//キーボード入力を受け付ける	
 		const int key = waitKey(1);
-
 		//qボタンが押されたとき
 		if (key == 'q'){
-			break;//whileループから抜ける．
+			break;
 		}
 
 	}
