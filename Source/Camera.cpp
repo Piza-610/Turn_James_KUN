@@ -35,6 +35,8 @@ int main(void) {
 	int x_basic = 0;
 	int y_basic = 0;
 
+	int roi_x, roi_y, roi_width, roi_height;
+
 	//無限ループ
 	while (1){
 		//USBカメラが得た動画の１フレームを格納
@@ -50,7 +52,13 @@ int main(void) {
 			y_basic = 0;
 		}else{
 			//直前の顔検出の範囲より一回り大きい範囲を検出する
-			Rect roi(Point(x - 50, y - 50), Point(x_end + 50, y_end + 50));
+            roi_x = max(0, x - 50);
+            roi_y = max(0, y - 50);
+            roi_width = min(frame.cols - roi_x, x_end - x + 100);
+            roi_height = min(frame.rows - roi_y, y_end - y + 100);
+            Rect roi(roi_x, roi_y, roi_width, roi_height);
+
+// 			Rect roi(Point(x - 50, y - 50), Point(x_end + 50, y_end + 50));
 			detection_frame = frame(roi);
 
 			//連続検索フラグを1
