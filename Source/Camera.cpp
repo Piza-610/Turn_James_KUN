@@ -52,31 +52,18 @@ int main(void) {
 			y_basic = 0;
 		}else{
 			//直前の顔検出の範囲より一回り大きい範囲を検出する
-            roi_x = max(0, x - 50);
-            roi_y = max(0, y - 50);
-            roi_width = min(frame.cols - roi_x, x_end - x + 100);
-            roi_height = min(frame.rows - roi_y, y_end - y + 100);
-			Rect roi(roi_x, roi_y, roi_width, roi_height);
-
-            if (roi.x >= 0 && roi.y >= 0 && 
-                roi.x + roi.width <= frame.cols && 
-                roi.y + roi.height <= frame.rows) {
-                detection_frame = frame(roi);
-            } else {
-                detection_frame = frame;
-                detection_flag = 0; // ROIが無効の場合、再度全体を検出
-            }
-
-// 			Rect roi(Point(x - 50, y - 50), Point(x_end + 50, y_end + 50));
+			Rect roi(Point(x - 50, y - 50), Point(x_end + 50, y_end + 50));
 			detection_frame = frame(roi);
 
 			//連続検索フラグを1
 			basic_flag = 1;
 		}
+
+		detection_flag = 0;
 		
 
 		//格納されたフレームに対してカスケードファイルに基づいて顔を検知
-		cascade.detectMultiScale(frame, faces, 1.1, 3, 0, Size(20, 20));
+		cascade.detectMultiScale(detection_frame, faces, 1.2, 5, 0, Size(20, 20));
 
 		//顔を検出した場合
 		if(faces.size() > 0){
@@ -99,7 +86,7 @@ int main(void) {
 			y_basic = y;
 
 			//検知した顔回りに赤い線
-//			rectangle(frame, Point(x, y), Point(x_end, y_end), Scalar(0, 0, 255), 3);
+			rectangle(frame, Point(x, y), Point(x_end, y_end), Scalar(0, 0, 255), 3);
 		}
 
 
@@ -107,7 +94,7 @@ int main(void) {
 		imshow("window", frame);
 
 		//キーボード入力を受け付ける	
-		const int key = waitKey(1);
+		int key = waitKey(1);
 		//qボタンが押されたとき
 		if (key == 'q'){
 			break;
