@@ -23,7 +23,7 @@ int main(void) {
 	CascadeClassifier cascade; 
 
 	//正面顔情報が入っているカスケード
-	cascade.load("C:/opencv/sources/data/haarcascades/haarcascade_frontalface_alt.xml"); 
+	cascade.load("/usr/share/opencv4/haarcascades/haarcascade_frontalface_alt.xml"); 
 	
 	//輪郭情報を格納場所
 	vector<Rect> faces; 
@@ -53,7 +53,7 @@ int main(void) {
 		const int key = waitKey(1);
 
 		//qボタンが押されたとき
-		if (key == 'q'/*113*/)
+		if (key == 'q')
 		{
 			break;//whileループから抜ける．
 		}
