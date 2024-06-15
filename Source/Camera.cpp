@@ -50,8 +50,11 @@ int main(void) {
 			y_basic = 0;
 		}else{
 			//直前の顔検出の範囲より一回り大きい範囲を検出する
-			Rect roi(Point(x-50, y-50), Point(x_end+50, y_end+50));
+			Rect roi(Point(x - 50, y - 50), Point(x_end + 50, y_end + 50));
 			detection_frame = frame(roi);
+
+			//連続検索フラグを1
+			basic_flag = 1;
 		}
 		
 
@@ -79,7 +82,7 @@ int main(void) {
 			y_basic = y;
 
 			//検知した顔回りに赤い線
-//			rectangle(frame, Point(x, y), Point(x_end, y_end), Scalar(0, 0, 255), 3);
+			rectangle(frame, Point(x, y), Point(x_end, y_end), Scalar(0, 0, 255), 3);
 		}
 
 
