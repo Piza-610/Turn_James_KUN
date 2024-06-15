@@ -79,7 +79,7 @@ int main(void) {
 			y_basic = y;
 
 			//検知した顔回りに赤い線
-			rectangle(frame, Point(x, y), Point(x_end, y_end), Scalar(0, 0, 255), 3);
+//			rectangle(frame, Point(x, y), Point(x_end, y_end), Scalar(0, 0, 255), 3);
 		}
 
 
