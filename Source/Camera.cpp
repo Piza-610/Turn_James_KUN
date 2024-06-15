@@ -81,16 +81,12 @@ int main(void) {
 			if (faces.size() == 0) {
 				//右に15度傾けるアフィン行列を求める
 				Mat trans = getRotationMatrix2D(Point(detection_frame.cols / 2, detection_frame.rows / 2), 15, 1);
-				//求めたアフィン行列を使って、ピンク枠内画像を回転する
-				warpAffine(detection_frame, detection_frame, trans, detection_frame.size());
 				//傾けた画像で顔を検出
 				cascade.detectMultiScale(detection_frame, faces, 1.2, 5, 0, Size(20, 20));
 			}
 			if (faces.size() == 0) {
 				//左に15度傾けるアフィン行列を求める(右に15度傾けていたので-30度右に傾けることで実質左に15度傾く)
 				Mat trans = getRotationMatrix2D(Point(detection_frame.cols / 2, detection_frame.rows / 2), -30, 1);
-				//求めたアフィン行列を使って、ピンク枠内画像を回転する
-				warpAffine(detection_frame, detection_frame, trans, detection_frame.size());
 				//傾けた画像で顔を検出
 				cascade.detectMultiScale(detection_frame, faces, 1.2, 5, 0, Size(20, 20));
 			}
