@@ -13,8 +13,41 @@ typedef struct Face_Coordinate{
 	int y_end = 0;	//右下
 }Face_Coordinate;
 
+typedef struct Basic_Coordinate_Infomation{
+	int basic_flag = 0;	//顔を連続で検知しているか(0:No, 1:Yes)
+	int x_basic = 0;
+	int y_basic = 0;
+}Basic_Coordinate_Infomation;
 
-// void range_of_detection()
+
+Mat range_of_detection(int dflag, struct FC, struct BCI, Mat frame){
+	if(dflag == 0){
+		//基準をリセット
+		BCI.basic_flag = 0;
+		BCI.x_basic = 0;
+		BCI.y_basic = 0;
+
+		//検知範囲を全体
+		return frame;
+	}else{
+		//検出範囲がキャプチャフレーム内に収まるように変換する
+		if (FC.x_srt - 50 < 1)
+			FC.x_srt = 51;
+		if (FC.y_srt - 50 < 1)
+			FC.y_srt = 51;
+		if (FC.x_end + 50 > frame.cols - 1)
+			FC.x_end = frame.cols - 51;
+		if (FC.y_end + 50 > frame.rows - 1)
+			FC.y_end = frame.rows - 51;
+
+		//検出範囲として、直前のフレームの顔検出の範囲より一回り(上下左右50pixel)大きい範囲とする
+		Rect roi(Point(FC.x_srt - 50, FC.y_srt - 50), Point(FC.x_end + 50, FC.y_end + 50));
+		return frame(roi);
+
+		//連続検索フラグを1
+		BCI.basic_flag = 1;
+	}
+}
 
 // void faces_detection
 
@@ -35,14 +68,11 @@ int main(void) {
 	vector<Rect> faces;
 
 	struct Face_Coordinate FC;
+	struct Basic_Coordinate_Infomation BCI;
 
 	Mat detection_frame;	//顔の検出範囲
 	Rect roi;
 	int detection_flag = 0;	//直前に顔を検知しているか(0:No, 1:Yes)
-
-	int basic_flag = 0;	//顔を連続で検知しているか(0:No, 1:Yes)
-	int x_basic = 0;
-	int y_basic = 0;
 
 	int not_found_flag = 1;//連続顔を見つけられなかった(0:No, 1:Yes)
 
@@ -51,32 +81,7 @@ int main(void) {
 		//USBカメラが得た動画の１フレームを格納
 		cap >> frame;
 
-		if(detection_flag == 0){
-			//検知範囲を全体
-			detection_frame = frame;
-
-			//基準をリセット
-			basic_flag = 0;
-			x_basic = 0;
-			y_basic = 0;
-		}else{
-			//検出範囲がキャプチャフレーム内に収まるように変換する
-			if (FC.x_srt - 50 < 1)
-				FC.x_srt = 51;
-			if (FC.y_srt - 50 < 1)
-				FC.y_srt = 51;
-			if (FC.x_end + 50 > frame.cols - 1)
-				FC.x_end = frame.cols - 51;
-			if (FC.y_end + 50 > frame.rows - 1)
-				FC.y_end = frame.rows - 51;
-
-			//検出範囲として、直前のフレームの顔検出の範囲より一回り(上下左右50pixel)大きい範囲とする
-			Rect roi(Point(FC.x_srt - 50, FC.y_srt - 50), Point(FC.x_end + 50, FC.y_end + 50));
-			detection_frame = frame(roi);
-
-			//連続検索フラグを1
-			basic_flag = 1;
-		}
+		detection_frame = range_of_detection(detection_flag, FC, BCI, frame);
 
 		detection_flag = 0;
 		
