@@ -20,7 +20,7 @@ typedef struct Basic_Coordinate_Infomation{
 }Basic_Coordinate_Infomation;
 
 
-Mat range_of_detection(int dflag, struct FC, struct BCI, Mat frame){
+Mat range_of_detection(int dflag, Face_Coordinate &FC, Basic_Coordinate_Infomation &BCI, Mat &frame){
 	if(dflag == 0){
 		//基準をリセット
 		BCI.basic_flag = 0;
@@ -118,19 +118,19 @@ int main(void) {
 
 
 			//左上の顔座標を求める
-			if(basic_flag == 0){	//初期検知の場合
+			if(BCI.basic_flag == 0){	//初期検知の場合
 				FC.x_srt = faces[0].x;
 				FC.y_srt = faces[0].y;
-			}else if(basic_flag == 1){	//連続検知の場合
-				FC.x_end = (x_basic - 50) + faces[0].x;
-				FC.y_end = (y_basic - 50) + faces[0].y;
+			}else if(BCI.basic_flag == 1){	//連続検知の場合
+				FC.x_end = (BCI.x_basic - 50) + faces[0].x;
+				FC.y_end = (BCI.y_basic - 50) + faces[0].y;
 			}
 
 			FC.x_end = FC.x_srt + faces[0].width;
 			FC.y_end = FC.y_srt + faces[0].height;
 
-			x_basic = FC.x_srt;
-			y_basic = FC.y_srt;
+			BCI.x_basic = FC.x_srt;
+			BCI.y_basic = FC.y_srt;
 
 			//検知した顔回りに赤い線
 			rectangle(frame, Point(FC.x_srt, FC.y_srt), Point(FC.x_end, FC.y_end), Scalar(0, 0, 255), 3);
