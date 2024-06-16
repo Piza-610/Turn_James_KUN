@@ -89,6 +89,7 @@ int main(void) {
 		//格納されたフレームに対してカスケードファイルに基づいて顔を検知
 		cascade.detectMultiScale(detection_frame, faces, 1.2, 5, 0, Size(20, 20)); 
 
+/*
 		//連続顔検出フラグが0のとき顔を斜めにする
 		//(直前に顔を検出していた時だけ斜めの検出を行う)
 		if (not_found_flag == 0) {
@@ -110,6 +111,7 @@ int main(void) {
 				cascade.detectMultiScale(detection_frame, faces, 1.2, 5, 0, Size(20, 20));
 			}
 		}
+*/
 
 		//顔を検出した場合
 		if(faces.size() > 0){
