@@ -19,7 +19,6 @@ int main(void) {
     int pin = Motor_getPin(&motor1);
 
     Motor_setting(&motor1 , pin, 400, 1024);
-
     Motor_moving(&motor1 , pin);
 
 	VideoCapture cap(0);    //open camera & check
@@ -36,13 +35,12 @@ int main(void) {
 	//輪郭情報を格納場所
 	vector<Rect> faces;
 
-	struct Face_Coordinate FC;
-	struct Basic_Coordinate_Infomation BCI;
+    Face_Coordinate FC;
+	Basic_Coordinate_Infomation BCI;
 
 	Mat detection_frame;	//顔の検出範囲
 	Rect roi;
 	int detection_flag = 0;	//直前に顔を検知しているか(0:No, 1:Yes)
-
 	int not_found_flag = 1;//連続顔を見つけられなかった(0:No, 1:Yes)
 
 	//無限ループ
@@ -73,6 +71,3 @@ int main(void) {
 
 	return 0;
 }
-
-// g++ -o Motor Turn_The_Neck/main.cpp Turn_The_Neck/Motor.cpp -lwiringPi
-// sudo ./Motor

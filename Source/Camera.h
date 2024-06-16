@@ -2,6 +2,9 @@
 #define CLASS_CAMERA_H
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui.hpp>
+#include <vector>
+
+using namespace cv;
 
 //基準となる値
 typedef struct Basic_Coordinate_Infomation{
@@ -18,7 +21,7 @@ typedef struct Face_Coordinate{
 	int y_end = 0;	//右下
 }Face_Coordinate;
 
-int range_of_detection(int dflag, Face_Coordinate &FC, Basic_Coordinate_Infomation &BCI, Mat &frame);
+Mat range_of_detection(int dflag, Face_Coordinate &FC, Basic_Coordinate_Infomation &BCI, Mat &frame);
 int faces_detection(Face_Coordinate &FC, Basic_Coordinate_Infomation &BCI, Mat &frame, vector<Rect> &faces);
 
 #endif

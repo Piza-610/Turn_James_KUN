@@ -3,6 +3,9 @@
 #include <vector>
 #include "Camera.h"
 
+using namespace cv;
+using namespace std;
+
 //顔の検出範囲を決定
 Mat range_of_detection(int dflag, Face_Coordinate &FC, Basic_Coordinate_Infomation &BCI, Mat &frame){
 	if(dflag == 0){
