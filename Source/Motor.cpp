@@ -1,3 +1,4 @@
+#include <iostream>
 #include <wiringPi.h>
 #include "Motor.h"
 
