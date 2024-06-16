@@ -18,8 +18,7 @@ typedef struct Face_Coordinate{
 	int y_end = 0;	//右下
 }Face_Coordinate;
 
-
-Mat range_of_detection(int dflag, Face_Coordinate &FC, Basic_Coordinate_Infomation &BCI, Mat &frame);
+int range_of_detection(int dflag, Face_Coordinate &FC, Basic_Coordinate_Infomation &BCI, Mat &frame);
 int faces_detection(Face_Coordinate &FC, Basic_Coordinate_Infomation &BCI, Mat &frame, vector<Rect> &faces);
 
 #endif

@@ -6,6 +6,9 @@
 #include "Camera.h"
 #include "Motor.h"
 
+using namespace cv;
+using namespace std;
+
 int main(void) {
     wiringPiSetupGpio();        // clear WiringPi
 
