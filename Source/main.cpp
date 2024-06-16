@@ -10,7 +10,11 @@ using namespace cv;
 using namespace std;
 
 int main(void) {
-    wiringPiSetupGpio();        // clear WiringPi
+    wiringPiSetupGpio();        // Clear WiringPi
+	VideoCapture cap(0);        // Open camera & check
+	if (!cap.isOpened()){
+		return -1;	// Processing when reading fails
+	}
 
     Motor motor1;
 
@@ -19,54 +23,46 @@ int main(void) {
     int pin = Motor_getPin(&motor1);
 
     Motor_setting(&motor1 , pin, 400, 1024);
-    Motor_moving(&motor1 , pin);
 
-	VideoCapture cap(0);    //open camera & check
-	if (!cap.isOpened()){
-		return -1;	//読み込みに失敗したときの処理
-	}
-
-	//取得したフレーム
-	Mat frame;
-	//カスケード分類器格納場所
-	CascadeClassifier cascade; 
-	//正面顔情報が入っているカスケード
-	cascade.load("/usr/share/opencv4/haarcascades/haarcascade_frontalface_alt.xml"); 
-	//輪郭情報を格納場所
-	vector<Rect> faces;
+	Mat frame;	        // Create frame
+	CascadeClassifier cascade; 	// Create a cascade box.
+	cascade.load("/usr/share/opencv4/haarcascades/haarcascade_frontalface_alt.xml"); 	// Load face Cascade
+	vector<Rect> faces; 	    // Create a face contour box
 
     Face_Coordinate FC;
 	Basic_Coordinate_Infomation BCI;
 
-	Mat detection_frame;	//顔の検出範囲
+	Mat detection_frame;	// Create face detection range
 	Rect roi;
-	int detection_flag = 0;	//直前に顔を検知しているか(0:No, 1:Yes)
-	int not_found_flag = 1;//連続顔を見つけられなかった(0:No, 1:Yes)
+	int detection_flag = 0;	// Is the face detected just before(0:No, 1:Yes)
+	int not_found_flag = 1;// 連続して顔を見つけられなかったか(0:No, 1:Yes)
 
-	//無限ループ
+	// Endless loop
 	while (1){
-		//USBカメラが得た動画の１フレームを格納
+		// Stores a single frame of video obtained by the USB camera
 		cap >> frame;
 
 		detection_frame = range_of_detection(detection_flag, FC, BCI, frame);	
 
-		//格納されたフレームに対してカスケードファイルに基づいて顔を検知
+		// Face detection based on cascade file for stored frames
 		cascade.detectMultiScale(detection_frame, faces, 1.2, 5, 0, Size(20, 20)); 
 
 		detection_flag = faces_detection(FC, BCI, frame, faces);
 
-		//画像を表示．
+        if(BCI.basic_flag == 1) Motor_moving(&motor1 , pin);
+
+		// Show Image
 		imshow("window", frame);
 
-		//キーボード入力を受け付ける
+		// Waiting for keyboard input
 		int key = waitKey(1);
-		//qボタンが押されたとき
+		// If you press 'q',
 		if (key == 'q'){
-			break;
+			break;  // The loop is end
 		}
 
 	}
-	//すべてのウィンドウを閉じる
+	// Close all windows
 	destroyAllWindows();
 
 	return 0;
