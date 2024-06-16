@@ -49,7 +49,32 @@ Mat range_of_detection(int dflag, Face_Coordinate &FC, Basic_Coordinate_Infomati
 	}
 }
 
-// void faces_detection
+int faces_detection(Face_Coordinate &FC, Basic_Coordinate_Infomation &BCI, Mat &frame, vector<Rect> &faces){
+	//顔を検出した場合
+	if(faces.size() > 0){
+		//左上の顔座標を求める
+		if(BCI.basic_flag == 0){	//初期検知の場合
+			FC.x_srt = faces[0].x;
+			FC.y_srt = faces[0].y;
+		}else if(BCI.basic_flag == 1){	//連続検知の場合
+			FC.x_end = (BCI.x_basic - 50) + faces[0].x;
+			FC.y_end = (BCI.y_basic - 50) + faces[0].y;
+		}
+
+		FC.x_end = FC.x_srt + faces[0].width;
+		FC.y_end = FC.y_srt + faces[0].height;
+
+		BCI.x_basic = FC.x_srt;
+		BCI.y_basic = FC.y_srt;
+
+		//検知した顔回りに赤い線
+		rectangle(frame, Point(FC.x_srt, FC.y_srt), Point(FC.x_end, FC.y_end), Scalar(0, 0, 255), 3);
+
+		//顔検出フラグを立てる(1)
+		return 1;
+	}
+	return 0;
+}
 
 int main(void) {
 	//カメラデバイスが正常にオープンしたか確認．
@@ -90,7 +115,9 @@ int main(void) {
 		cascade.detectMultiScale(detection_frame, faces, 1.2, 5, 0, Size(20, 20)); 
 
 /*
-		//連続顔検出フラグが0のとき顔を斜めにする
+//連続顔検出フラグが0のとき顔を斜めにする
+<!>ここの処理は重たくなるから今は排除<!>
+
 		//(直前に顔を検出していた時だけ斜めの検出を行う)
 		if (not_found_flag == 0) {
 			not_found_flag = 1;
@@ -113,31 +140,7 @@ int main(void) {
 		}
 */
 
-		//顔を検出した場合
-		if(faces.size() > 0){
-			//顔検出フラグを立てる(1)
-			detection_flag = 1;
-
-
-			//左上の顔座標を求める
-			if(BCI.basic_flag == 0){	//初期検知の場合
-				FC.x_srt = faces[0].x;
-				FC.y_srt = faces[0].y;
-			}else if(BCI.basic_flag == 1){	//連続検知の場合
-				FC.x_end = (BCI.x_basic - 50) + faces[0].x;
-				FC.y_end = (BCI.y_basic - 50) + faces[0].y;
-			}
-
-			FC.x_end = FC.x_srt + faces[0].width;
-			FC.y_end = FC.y_srt + faces[0].height;
-
-			BCI.x_basic = FC.x_srt;
-			BCI.y_basic = FC.y_srt;
-
-			//検知した顔回りに赤い線
-			rectangle(frame, Point(FC.x_srt, FC.y_srt), Point(FC.x_end, FC.y_end), Scalar(0, 0, 255), 3);
-		}
-
+		detection_flag = faces_detection(FC, BCI, frame, faces);
 
 		//画像を表示．
 		imshow("window", frame);
