@@ -1,5 +1,6 @@
 #ifndef CLASS_CAMERA_H
 #define CLASS_CAMERA_H
+
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui.hpp>
 #include <vector>
@@ -22,6 +23,6 @@ typedef struct Face_Coordinate{
 }Face_Coordinate;
 
 Mat range_of_detection(int dflag, Face_Coordinate &FC, Basic_Coordinate_Infomation &BCI, Mat &frame);
-int faces_detection(Face_Coordinate &FC, Basic_Coordinate_Infomation &BCI, Mat &frame, vector<Rect> &faces);
+int faces_detection(Face_Coordinate &FC, Basic_Coordinate_Infomation &BCI, Mat &frame, std::vector<Rect> &faces);
 
 #endif
