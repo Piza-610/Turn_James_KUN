@@ -1,24 +1,10 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui.hpp>
 #include <vector>
+#include "Camera.h"
 
 using namespace cv;
 using namespace std;
-
-//基準となる値
-typedef struct Basic_Coordinate_Infomation{
-	int basic_flag = 0;	//顔を連続で検知しているか(0:No, 1:Yes)
-	int x_basic = 0;
-	int y_basic = 0;
-}Basic_Coordinate_Infomation;
-
-//顔の座標の位置
-typedef struct Face_Coordinate{
-	int x_srt = 0;	//左上 x
-	int y_srt = 0;	//右上 y
-	int x_end = 0;	//左下
-	int y_end = 0;	//右下
-}Face_Coordinate;
 
 //顔の検出範囲を決定
 Mat range_of_detection(int dflag, Face_Coordinate &FC, Basic_Coordinate_Infomation &BCI, Mat &frame){
@@ -32,26 +18,22 @@ Mat range_of_detection(int dflag, Face_Coordinate &FC, Basic_Coordinate_Infomati
 		return frame;
 	}else{
 		//検出範囲がキャプチャフレーム内に収まるように変換する
-		if (FC.x_srt - 50 < 1)
-			FC.x_srt = 51;
-		if (FC.y_srt - 50 < 1)
-			FC.y_srt = 51;
-		if (FC.x_end + 50 > frame.cols - 1)
-			FC.x_end = frame.cols - 51;
-		if (FC.y_end + 50 > frame.rows - 1)
-			FC.y_end = frame.rows - 51;
-
-		//検出範囲として、直前のフレームの顔検出の範囲より一回り(上下左右50pixel)大きい範囲とする
-		Rect roi(Point(FC.x_srt - 50, FC.y_srt - 50), Point(FC.x_end + 50, FC.y_end + 50));
-		return frame(roi);
+		if (FC.x_srt - 50 < 1) FC.x_srt = 51;
+		if (FC.y_srt - 50 < 1) FC.y_srt = 51;
+		if (FC.x_end + 50 > frame.cols - 1)	FC.x_end = frame.cols - 51;
+		if (FC.y_end + 50 > frame.rows - 1)	FC.y_end = frame.rows - 51;
 
 		//連続検索フラグを1
 		BCI.basic_flag = 1;
+
+		//検出範囲として、直前のフレームの顔検出の範囲より一回り(上下左右50pixel)大きい範囲とする
+		Rect roi(Point(FC.x_srt - 50, FC.y_srt - 50), Point(FC.x_end + 50, FC.y_end + 50));
+		return  frame(roi);
 	}
 }
 
-//顔を検出した場合
 int faces_detection(Face_Coordinate &FC, Basic_Coordinate_Infomation &BCI, Mat &frame, vector<Rect> &faces){
+	//顔を検出した場合
 	if(faces.size() > 0){
 		//左上の顔座標を求める
 		if(BCI.basic_flag == 0){	//初期検知の場合
@@ -81,80 +63,24 @@ int faces_detection(Face_Coordinate &FC, Basic_Coordinate_Infomation &BCI, Mat &
 //連続顔検出フラグが0のとき顔を斜めにする
 <!>ここの処理は重たくなるから今は排除<!>
 
-		//(直前に顔を検出していた時だけ斜めの検出を行う)
-		if (not_found_flag == 0) {
-			not_found_flag = 1;
-			if (faces.size() == 0) {
-				//右に15度傾けるアフィン行列を求める
-				Mat trans = getRotationMatrix2D(Point(detection_frame.cols / 2, detection_frame.rows / 2), 30, 1);
-				//求めたアフィン行列を使って画像を回転
-				warpAffine(detection_frame, detection_frame, trans, detection_frame.size());
-				//傾けた画像で顔を検出
-				cascade.detectMultiScale(detection_frame, faces, 1.2, 5, 0, Size(20, 20));
-			}
-			if (faces.size() == 0) {
-				//左に15度傾けるアフィン行列を求める(右に15度傾けていたので-30度右に傾けることで実質左に15度傾く)
-				Mat trans = getRotationMatrix2D(Point(detection_frame.cols / 2, detection_frame.rows / 2), -60, 1);
-				//求めたアフィン行列を使って画像を回転
-				warpAffine(detection_frame, detection_frame, trans, detection_frame.size());
-				//傾けた画像で顔を検出
-				cascade.detectMultiScale(detection_frame, faces, 1.2, 5, 0, Size(20, 20));
-			}
-		}
-*/
-
-int main(void) {
-	//カメラデバイスが正常にオープンしたか確認．
-	VideoCapture cap(0);
-	if (!cap.isOpened()){
-		return -1;	//読み込みに失敗したときの処理
+//(直前に顔を検出していた時だけ斜めの検出を行う)
+if (not_found_flag == 0) {
+	not_found_flag = 1;
+	if (faces.size() == 0) {
+		//右に15度傾けるアフィン行列を求める
+		Mat trans = getRotationMatrix2D(Point(detection_frame.cols / 2, detection_frame.rows / 2), 30, 1);
+		//求めたアフィン行列を使って画像を回転
+		warpAffine(detection_frame, detection_frame, trans, detection_frame.size());
+		//傾けた画像で顔を検出
+		cascade.detectMultiScale(detection_frame, faces, 1.2, 5, 0, Size(20, 20));
 	}
-
-	//取得したフレーム
-	Mat frame;
-	//カスケード分類器格納場所
-	CascadeClassifier cascade; 
-	//正面顔情報が入っているカスケード
-	cascade.load("/usr/share/opencv4/haarcascades/haarcascade_frontalface_alt.xml"); 
-	//輪郭情報を格納場所
-	vector<Rect> faces;
-
-	struct Face_Coordinate FC;
-	struct Basic_Coordinate_Infomation BCI;
-
-	Mat detection_frame;	//顔の検出範囲
-	Rect roi;
-	int detection_flag = 0;	//直前に顔を検知しているか(0:No, 1:Yes)
-
-	int not_found_flag = 1;//連続顔を見つけられなかった(0:No, 1:Yes)
-
-	//無限ループ
-	while (1){
-		//USBカメラが得た動画の１フレームを格納
-		cap >> frame;
-
-		detection_frame = range_of_detection(detection_flag, FC, BCI, frame);
-
-//		detection_flag = 0;		
-
-		//格納されたフレームに対してカスケードファイルに基づいて顔を検知
-		cascade.detectMultiScale(detection_frame, faces, 1.2, 5, 0, Size(20, 20)); 
-
-		detection_flag = faces_detection(FC, BCI, frame, faces);
-
-		//画像を表示．
-		imshow("window", frame);
-
-		//キーボード入力を受け付ける
-		int key = waitKey(1);
-		//qボタンが押されたとき
-		if (key == 'q'){
-			break;
-		}
-
+	if (faces.size() == 0) {
+		//左に15度傾けるアフィン行列を求める(右に15度傾けていたので-30度右に傾けることで実質左に15度傾く)
+		Mat trans = getRotationMatrix2D(Point(detection_frame.cols / 2, detection_frame.rows / 2), -60, 1);
+		//求めたアフィン行列を使って画像を回転
+		warpAffine(detection_frame, detection_frame, trans, detection_frame.size());
+		//傾けた画像で顔を検出
+		cascade.detectMultiScale(detection_frame, faces, 1.2, 5, 0, Size(20, 20));
 	}
-	//すべてのウィンドウを閉じる
-	destroyAllWindows();
-
-	return 0;
 }
+*/
