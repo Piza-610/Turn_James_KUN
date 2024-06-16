@@ -5,14 +5,14 @@
 using namespace cv;
 using namespace std;
 
-/*
+
 typedef struct Face_Coordinate{
 	int x_srt = 0;	//左上 x
 	int y_srt = 0;	//右上 y
 	int x_end = 0;	//左下
 	int y_end = 0;	//右下
 }Face_Coordinate;
-*/
+
 
 // void range_of_detection()
 
@@ -34,15 +34,11 @@ int main(void) {
 	//輪郭情報を格納場所
 	vector<Rect> faces;
 
-//	struct Face_Coordinate FC;
+	struct Face_Coordinate FC;
 
 	Mat detection_frame;	//顔の検出範囲
 	Rect roi;
 	int detection_flag = 0;	//直前に顔を検知しているか(0:No, 1:Yes)
-	int x_srt = 0;	//左上 x
-	int y_srt = 0;	//右上 y
-	int x_end = 0;	//左下
-	int y_end = 0;	//右下
 
 	int basic_flag = 0;	//顔を連続で検知しているか(0:No, 1:Yes)
 	int x_basic = 0;
@@ -65,17 +61,17 @@ int main(void) {
 			y_basic = 0;
 		}else{
 			//検出範囲がキャプチャフレーム内に収まるように変換する
-			if (x_srt - 50 < 1)
-				x_srt = 51;
-			if (y_srt - 50 < 1)
-				y_srt = 51;
-			if (x_end + 50 > frame.cols - 1)
-				x_end = frame.cols - 51;
-			if (y_end + 50 > frame.rows - 1)
-				y_end = frame.rows - 51;
+			if (FC.x_srt - 50 < 1)
+				FC.x_srt = 51;
+			if (FC.y_srt - 50 < 1)
+				FC.y_srt = 51;
+			if (FC.x_end + 50 > frame.cols - 1)
+				FC.x_end = frame.cols - 51;
+			if (FC.y_end + 50 > frame.rows - 1)
+				FC.y_end = frame.rows - 51;
 
 			//検出範囲として、直前のフレームの顔検出の範囲より一回り(上下左右50pixel)大きい範囲とする
-			Rect roi(Point(x_srt - 50, y_srt - 50), Point(x_end + 50, y_end + 50));
+			Rect roi(Point(FC.x_srt - 50, FC.y_srt - 50), Point(FC.x_end + 50, FC.y_end + 50));
 			detection_frame = frame(roi);
 
 			//連続検索フラグを1
@@ -94,7 +90,7 @@ int main(void) {
 			not_found_flag = 1;
 			if (faces.size() == 0) {
 				//右に15度傾けるアフィン行列を求める
-				Mat trans = getRotationMatrix2D(Point(detection_frame.cols / 2, detection_frame.rows / 2), 15, 1);
+				Mat trans = getRotationMatrix2D(Point(detection_frame.cols / 2, detection_frame.rows / 2), 30, 1);
 				//求めたアフィン行列を使って画像を回転
 				warpAffine(detection_frame, detection_frame, trans, detection_frame.size());
 				//傾けた画像で顔を検出
@@ -102,7 +98,7 @@ int main(void) {
 			}
 			if (faces.size() == 0) {
 				//左に15度傾けるアフィン行列を求める(右に15度傾けていたので-30度右に傾けることで実質左に15度傾く)
-				Mat trans = getRotationMatrix2D(Point(detection_frame.cols / 2, detection_frame.rows / 2), -30, 1);
+				Mat trans = getRotationMatrix2D(Point(detection_frame.cols / 2, detection_frame.rows / 2), -60, 1);
 				//求めたアフィン行列を使って画像を回転
 				warpAffine(detection_frame, detection_frame, trans, detection_frame.size());
 				//傾けた画像で顔を検出
@@ -118,21 +114,21 @@ int main(void) {
 
 			//左上の顔座標を求める
 			if(basic_flag == 0){	//初期検知の場合
-				x_srt = faces[0].x;
-				y_srt = faces[0].y;
+				FC.x_srt = faces[0].x;
+				FC.y_srt = faces[0].y;
 			}else if(basic_flag == 1){	//連続検知の場合
-				x_end = (x_basic - 50) + faces[0].x;
-				y_end = (y_basic - 50) + faces[0].y;
+				FC.x_end = (x_basic - 50) + faces[0].x;
+				FC.y_end = (y_basic - 50) + faces[0].y;
 			}
 
-			x_end = x_srt + faces[0].width;
-			y_end = y_srt + faces[0].height;
+			FC.x_end = FC.x_srt + faces[0].width;
+			FC.y_end = FC.y_srt + faces[0].height;
 
-			x_basic = x_srt;
-			y_basic = y_srt;
+			x_basic = FC.x_srt;
+			y_basic = FC.y_srt;
 
 			//検知した顔回りに赤い線
-			rectangle(frame, Point(x_srt, y_srt), Point(x_end, y_end), Scalar(0, 0, 255), 3);
+			rectangle(frame, Point(FC.x_srt, FC.y_srt), Point(FC.x_end, FC.y_end), Scalar(0, 0, 255), 3);
 		}
 
 
