@@ -10,14 +10,11 @@ sudo apt install libopencv-dev
 sudo apt install cmake
 ```
 
+- vector
+
 ## Moter.cpp
 ### Module
-- [pigpio](https://qiita.com/fujita06/items/ca265fd4aa8f9474d966)
-```
-sudo apt-get install pigpio
-sudo systemctl start pigpiod
-sudo systemctl enable pigpiod
-```
+- iostream
 
 - [Wiring Pi](https://github.com/WiringPi/WiringPi.git)
 ```
@@ -31,5 +28,5 @@ cd WiringPi
 
 ## Parts
 - [Moter(SG90)](https://servodatabase.com/servo/towerpro/sg90)
-- Camera
+- USB Camera
 
