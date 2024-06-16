@@ -4,10 +4,11 @@
 - 35 : GPIO 19 : ORANGE(MOTOR)
 
 ## Camera.cpp
-- [OpenCV]
+- [OpenCV](https://opencv.org/)
+```
 sudo apt install libopencv-dev
 sudo apt install cmake
-
+```
 
 ## Moter.cpp
 ### Module
@@ -30,4 +31,5 @@ cd WiringPi
 
 ## Parts
 - [Moter(SG90)](https://servodatabase.com/servo/towerpro/sg90)
+- Camera
 
