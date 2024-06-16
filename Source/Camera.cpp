@@ -5,7 +5,14 @@
 using namespace cv;
 using namespace std;
 
+//基準となる値
+typedef struct Basic_Coordinate_Infomation{
+	int basic_flag = 0;	//顔を連続で検知しているか(0:No, 1:Yes)
+	int x_basic = 0;
+	int y_basic = 0;
+}Basic_Coordinate_Infomation;
 
+//顔の座標の位置
 typedef struct Face_Coordinate{
 	int x_srt = 0;	//左上 x
 	int y_srt = 0;	//右上 y
@@ -13,13 +20,7 @@ typedef struct Face_Coordinate{
 	int y_end = 0;	//右下
 }Face_Coordinate;
 
-typedef struct Basic_Coordinate_Infomation{
-	int basic_flag = 0;	//顔を連続で検知しているか(0:No, 1:Yes)
-	int x_basic = 0;
-	int y_basic = 0;
-}Basic_Coordinate_Infomation;
-
-
+//顔の検出範囲を決定
 Mat range_of_detection(int dflag, Face_Coordinate &FC, Basic_Coordinate_Infomation &BCI, Mat &frame){
 	if(dflag == 0){
 		//基準をリセット
@@ -49,8 +50,8 @@ Mat range_of_detection(int dflag, Face_Coordinate &FC, Basic_Coordinate_Infomati
 	}
 }
 
+//顔を検出した場合
 int faces_detection(Face_Coordinate &FC, Basic_Coordinate_Infomation &BCI, Mat &frame, vector<Rect> &faces){
-	//顔を検出した場合
 	if(faces.size() > 0){
 		//左上の顔座標を求める
 		if(BCI.basic_flag == 0){	//初期検知の場合
@@ -75,6 +76,32 @@ int faces_detection(Face_Coordinate &FC, Basic_Coordinate_Infomation &BCI, Mat &
 	}
 	return 0;
 }
+
+/*
+//連続顔検出フラグが0のとき顔を斜めにする
+<!>ここの処理は重たくなるから今は排除<!>
+
+		//(直前に顔を検出していた時だけ斜めの検出を行う)
+		if (not_found_flag == 0) {
+			not_found_flag = 1;
+			if (faces.size() == 0) {
+				//右に15度傾けるアフィン行列を求める
+				Mat trans = getRotationMatrix2D(Point(detection_frame.cols / 2, detection_frame.rows / 2), 30, 1);
+				//求めたアフィン行列を使って画像を回転
+				warpAffine(detection_frame, detection_frame, trans, detection_frame.size());
+				//傾けた画像で顔を検出
+				cascade.detectMultiScale(detection_frame, faces, 1.2, 5, 0, Size(20, 20));
+			}
+			if (faces.size() == 0) {
+				//左に15度傾けるアフィン行列を求める(右に15度傾けていたので-30度右に傾けることで実質左に15度傾く)
+				Mat trans = getRotationMatrix2D(Point(detection_frame.cols / 2, detection_frame.rows / 2), -60, 1);
+				//求めたアフィン行列を使って画像を回転
+				warpAffine(detection_frame, detection_frame, trans, detection_frame.size());
+				//傾けた画像で顔を検出
+				cascade.detectMultiScale(detection_frame, faces, 1.2, 5, 0, Size(20, 20));
+			}
+		}
+*/
 
 int main(void) {
 	//カメラデバイスが正常にオープンしたか確認．
@@ -108,37 +135,10 @@ int main(void) {
 
 		detection_frame = range_of_detection(detection_flag, FC, BCI, frame);
 
-		detection_flag = 0;
-		
+//		detection_flag = 0;		
 
 		//格納されたフレームに対してカスケードファイルに基づいて顔を検知
 		cascade.detectMultiScale(detection_frame, faces, 1.2, 5, 0, Size(20, 20)); 
-
-/*
-//連続顔検出フラグが0のとき顔を斜めにする
-<!>ここの処理は重たくなるから今は排除<!>
-
-		//(直前に顔を検出していた時だけ斜めの検出を行う)
-		if (not_found_flag == 0) {
-			not_found_flag = 1;
-			if (faces.size() == 0) {
-				//右に15度傾けるアフィン行列を求める
-				Mat trans = getRotationMatrix2D(Point(detection_frame.cols / 2, detection_frame.rows / 2), 30, 1);
-				//求めたアフィン行列を使って画像を回転
-				warpAffine(detection_frame, detection_frame, trans, detection_frame.size());
-				//傾けた画像で顔を検出
-				cascade.detectMultiScale(detection_frame, faces, 1.2, 5, 0, Size(20, 20));
-			}
-			if (faces.size() == 0) {
-				//左に15度傾けるアフィン行列を求める(右に15度傾けていたので-30度右に傾けることで実質左に15度傾く)
-				Mat trans = getRotationMatrix2D(Point(detection_frame.cols / 2, detection_frame.rows / 2), -60, 1);
-				//求めたアフィン行列を使って画像を回転
-				warpAffine(detection_frame, detection_frame, trans, detection_frame.size());
-				//傾けた画像で顔を検出
-				cascade.detectMultiScale(detection_frame, faces, 1.2, 5, 0, Size(20, 20));
-			}
-		}
-*/
 
 		detection_flag = faces_detection(FC, BCI, frame, faces);
 
