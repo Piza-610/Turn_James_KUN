@@ -18,7 +18,7 @@ sudo systemctl start pigpiod
 sudo systemctl enable pigpiod
 ```
 
-- [Wiring Pi]
+- [Wiring Pi](https://github.com/WiringPi/WiringPi.git)
 ```
 sudo apt-get install libi2c-dev
 sudo apt-get install git-core
